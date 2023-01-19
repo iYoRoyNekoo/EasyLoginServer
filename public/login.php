@@ -33,6 +33,10 @@ function gencode($mode){
 		echo json_encode($errmsg[4]);
 		return;
 	}
+
+	global $conn;
+	mysqli_query($conn,
+
 }
 
 function login($mode){
