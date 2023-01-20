@@ -35,7 +35,7 @@ function gencode($mode){
 	}
 
 	global $conn;
-	mysqli_query($conn,
+	
 
 }
 
@@ -44,6 +44,7 @@ function login($mode){
 		echo json_encode($errmsg[4]);
 		return;
 	}
+
 }
 
 function register(){
@@ -61,7 +62,10 @@ function verify(){
 }
 
 function modify(){
-
+	if(!((isset($_REQUEST['name'])||isset($_REQUEST['email']))&&isset($_REQUEST['password'])&&isset($_REQUEST['target'])&&isset($_REQUEST['content']))){
+		echo json_encode($errmsg[4]);
+		return;
+	}
 }
 
 function undefined(){//未定义操作
