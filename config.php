@@ -5,8 +5,8 @@ $mysql_username = 'login';
 $mysql_password = '061207';
 $mysql_database = 'login';
 
-$service_status = false;
-$debug_mode = false;
+$service_status = true;
+$debug_mode = true;
 $code_overtime = '+1 hour';
 
 $errmsg=array(//错误返回信息
@@ -27,7 +27,7 @@ $smtppass = "thisisthepasswordforthenoreplyemail(";					//SMTP服务器的用户
 $mailtitle = "EasyLogin Verify Code";								//邮件主题 （不要动）
 $mailcontenthead = "账户验证码为：";
 $mailcontentfoot = "。如果不是您本人操作，请忽略这封邮件。";
-$mailsender = "iYoRoy Network"										//发件人
+$mailsender = "iYoRoy Network";										//发件人
 $mailtype = "TXT";													//邮件格式（HTML/TXT）,TXT为文本邮件
 
 ?>

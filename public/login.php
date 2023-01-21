@@ -7,7 +7,7 @@ if(!$service_status){ //总开关，定义在config.php
 	return;
 }
 
-$conn=mysqli_connect($mysql_server_name, $mysql_username, $mysql_password, $mysql_database);
+$conn = mysqli_connect($mysql_server_host, $mysql_username, $mysql_password, $mysql_database);
 if(!$conn){//连接数据库
 	echo json_encode($errmsg[2]);
 	return;
@@ -29,10 +29,10 @@ cleanup();
 /*****函数定义*****/
 
 function query_sql($sql){
-	global $conn;
+	global $conn, $debug_mode;
 	$query_res = mysqli_query($conn,$sql);
 	if($debug_mode && !$query_res){
-		echo "//Warn:query returned error:\"$sql\"".PHP_EOL;
+		echo "//Warn:query returned error:\"$sql\"".PHP_EOL.'//ErrInfo:'.mysqli_error($conn);
 	}
 	return $query_res;
 }
@@ -72,6 +72,7 @@ function real_ip(){
 /*****action处理*****/
 
 function gencode($mode){//mode:为false时不输出内容
+	global $errmsg;
 	if( !(isset($_REQUEST['name']) || isset($_REQUEST['email'])) ){
 		echo(json_encode($errmsg[4]));
 		return 4;
@@ -80,7 +81,7 @@ function gencode($mode){//mode:为false时不输出内容
 	$use_name = isset($_REQUEST['name']);
 	$auth = '';
 	$email = '';
-	$sql = "delete from verify_codes where timestampdiff(second,overtime,now()) > 0"
+	$sql = "delete from verify_codes where timestampdiff(second,overtime,now()) > 0";
 	$query_res = query_sql($sql);//删除已经超时的code
 
 	if(!$query_res){
@@ -93,8 +94,8 @@ function gencode($mode){//mode:为false时不输出内容
 
 	$auth = base64_encode($auth);//转义防注入
 
-	if($use_name) $sql = "select name,verify,email from users where name=$auth";
-	else $sql = "select name,verify,email from users where email=$auth";
+	if($use_name) $sql = "select name,verify,email from users where name='$auth'";
+	else $sql = "select name,verify,email from users where email='$auth'";
 
 	$query_res = query_sql($sql);//检索用户
 
@@ -111,10 +112,11 @@ function gencode($mode){//mode:为false时不输出内容
 	if($use_name) $email = $row['email'];//从数据库比对获取email
 	else $name = $row['name'];
 	
+	global $code_overtime;
 	$code = rand(100000, 999999);
     $overtime = date('Y-m-d H:i:s', strtotime($code_overtime));
 
-	$sql = 'insert into verify_codes values(\''.base64_encode($code)."\',\'$name\',\'$overtime\')";
+	$sql = "insert into verify_codes values('$code','".base64_encode($name)."','$overtime')";
 	$query_res = query_sql($sql);
 
 	if(!$query_res){
@@ -129,20 +131,24 @@ function gencode($mode){//mode:为false时不输出内容
     $smtp->debug = false;
 	$smtp->sendmail(base64_decode($email), $smtpusermail, $mailtitle, $mailcontenthead . $code . $mailcontentfoot, $mailtype, '', '', '', $mailsender, '');
 
-	echo(json_encode(array('result'=>0,'msg'=>'OK')));
+	if($mode)echo(json_encode(array('result'=>0,'msg'=>'OK')));
 	return 0;
 
 }
 
 function login($mode){//mode:为false时不输出内容
+	global $errmsg;
 	if(!((isset($_REQUEST['name'])||isset($_REQUEST['email']))&&isset($_REQUEST['password']))){
 		echo json_encode($errmsg[4]);
 		return;
 	}
 
+	
+
 }
 
 function register(){
+	global $errmsg;
 	if(!(isset($_REQUEST['name'])&&isset($_REQUEST['email'])&&isset($_REQUEST['password']))){
 		echo json_encode($errmsg[4]);
 		return;
@@ -150,6 +156,7 @@ function register(){
 }
 
 function verify(){
+	global $errmsg;
 	if(!((isset($_REQUEST['name'])||isset($_REQUEST['email']))&&isset($_REQUEST['code']))){
 		echo json_encode($errmsg[4]);
 		return;
@@ -157,6 +164,7 @@ function verify(){
 }
 
 function modify(){
+	global $errmsg;
 	if(!((isset($_REQUEST['name'])||isset($_REQUEST['email']))&&isset($_REQUEST['password'])&&isset($_REQUEST['target'])&&isset($_REQUEST['content']))){
 		echo json_encode($errmsg[4]);
 		return;
@@ -164,6 +172,7 @@ function modify(){
 }
 
 function undefined(){//未定义操作
+	global $errmsg;
 	echo json_encode($errmsg[3]);
 	return;
 }
