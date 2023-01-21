@@ -83,7 +83,7 @@ function gencode($mode){//mode:为false时不输出内容
 	$use_name = isset($_REQUEST['name']);
 	$auth = '';
 	$email = '';
-	$sql = "delete from verify_codes where timestampdiff(second,overtime,now()) > 0";
+	$sql = "delete from verify_codes where timestampdiff(second,overtime,now()) < 0";
 	$query_res = query_sql($sql);//删除已经超时的code
 	if(!$query_res){
 		if($mode)echo(json_encode($errmsg[5]));
@@ -138,13 +138,13 @@ function gencode($mode){//mode:为false时不输出内容
 }
 
 function login($mode){//mode:为false时不输出内容
-	global $errmsg;
+	global $errmsg, $token_overtime;
 	if(!((isset($_REQUEST['name'])||isset($_REQUEST['email']))&&isset($_REQUEST['password']))){
 		if($mode)echo(json_encode($errmsg[4]));
-		return;
+		return 4;
 	}
 
-	$sql = 'delete from tokens where timestampdiff(second,overtime,now()) > 0';//删除已超时的token
+	$sql = 'delete from tokens where timestampdiff(second,overtime,now()) < 0';//删除已超时的token
 	$query_res = query_sql($sql);
 	if(!$query_res){
 		if($mode)echo(json_encode($errmsg[5]));
@@ -197,7 +197,7 @@ function login($mode){//mode:为false时不输出内容
 		$hashkey = $id . rand() . time();
 		$token = md5($hashkey);
 	}
-	$date = date('Y-m-d H:i:s', strtotime('+3 months'));
+	$date = date('Y-m-d H:i:s', strtotime($token_overtime));
 	$sql = "insert into tokens (id,token,ip,overtime) values($id,'".base64_encode($token)."','$ip','$date')";
 	$query_res = query_sql($sql);
 	if(!$query_res){
@@ -213,9 +213,43 @@ function login($mode){//mode:为false时不输出内容
 function register(){
 	global $errmsg;
 	if(!(isset($_REQUEST['name'])&&isset($_REQUEST['email'])&&isset($_REQUEST['password']))){
-		echo json_encode($errmsg[4]);
+		echo(json_encode($errmsg[4]));
 		return;
 	}
+	$email = base64_encode($_REQUEST['email']);
+    $name = base64_encode($_REQUEST['name']);
+    $password = base64_encode(md5($_REQUEST['password']));
+
+	$sql = "select id from users where name='$name' or email='$email'";
+	$query_res = query_sql($sql);
+	if(!$query_res){
+		echo(json_encode($errmsg[5]));
+		return;
+	}
+	if($row = mysqli_fetch_array($query_res)){
+		echo(json_encode($errmsg[9]));
+		return;
+	}
+	$sql = "insert into users (name,email,passwd) values('$name','$email','$password')";
+	$query_res = query_sql($sql);
+	if(!$query_res){
+		echo(json_encode($errmsg[5]));
+		return;
+	}
+
+	$sql = "select id from users where name='$name' and email='$email'";
+	$query_res = query_sql($sql);
+	if(!$query_res){
+		echo(json_encode($errmsg[5]));
+		return;
+	}
+	$row = mysqli_fetch_array($query_res);
+	$id=$row['id'];
+	mkdir("../data/$id");
+	gencode(false);
+
+	echo json_encode(array('result'=>0,'msg'=>'OK'));
+	return;
 }
 
 function verify(){

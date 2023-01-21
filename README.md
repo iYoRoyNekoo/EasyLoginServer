@@ -9,7 +9,7 @@ action定义如下：
 | reg | 注册 | 用户名[username]，邮箱[email]，密码[password] | result |
 | verify | 验证邮箱可用性 | 用户名[username]或邮箱[email]<sup>[1]</sup>，验证码[code] | result |
 | gencode | 生成邮箱验证码 | 用户名[username]或邮箱[email]<sup>[1]</sup> | result |
-| modify | 修改 | 用户名[username]或邮箱[email]<sup>[1]</sup>，密码【password] ，要修改的字段[target]<sup>[2]</sup>，内容[content] | result |
+| modify | 修改 | 用户名[username]或邮箱[email]<sup>[1]</sup>，密码[password] ，要修改的字段[target]<sup>[2]</sup>，内容[content] | result |
 
 * <sup>[1]</sup> 若同时传入，则按照用户名登录  
 * <sup>[2]</sup> target包括：用户名[username]，邮箱[email]，密码[password]
@@ -30,3 +30,4 @@ result字段代表登录结果，参考原因如下：
 | 6 | 未知用户 | Unknow user/email |
 | 7 | 无需执行操作 | Unnecessary operation |
 | 8 | 用户名或密码错误 | Incorrect user name or password |
+| 9 | 用户名或邮箱已被注册 | Username or email unavailable |

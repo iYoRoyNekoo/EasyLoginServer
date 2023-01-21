@@ -8,6 +8,7 @@ $mysql_database = 'login';
 $service_status = true;
 $debug_mode = false;
 $code_overtime = '+1 hour';
+$token_overtime = '+3 months';
 
 $errmsg=array(//错误返回信息
 	1=>array('result'=>1,'msg'=>'Service is unavailable'),			//登录服务已禁用
@@ -17,7 +18,8 @@ $errmsg=array(//错误返回信息
 	5=>array('result'=>5,'msg'=>'Database query Failed'),			//数据库操作失败
 	6=>array('result'=>6,'msg'=>'Unknow user/email'),				//未知用户
 	7=>array('result'=>7,'msg'=>'Unnecessary operation'),			//无需执行操作
-	8=>array('result'=>8,'msg'=>'Incorrect user name or password')	//用户名或密码错误
+	8=>array('result'=>8,'msg'=>'Incorrect user name or password'),	//用户名或密码错误
+	9=>array('result'=>9,'msg'=>'Username or email unavailable')	//用户名或邮箱已被注册
 );
 
 $smtpserver = "localhost";											//SMTP服务器
