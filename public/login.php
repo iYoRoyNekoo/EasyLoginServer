@@ -31,8 +31,10 @@ cleanup();
 function query_sql($sql){
 	global $conn, $debug_mode;
 	$query_res = mysqli_query($conn,$sql);
-	if($debug_mode && !$query_res){
-		echo "//Warn:query returned error:\"$sql\"".PHP_EOL.'//ErrInfo:'.mysqli_error($conn);
+	if($debug_mode){
+		echo "//Debug:SQL:$sql".PHP_EOL;
+		if(!$query_res)
+			echo "//Warn:query returned error:".mysqli_error($conn).PHP_EOL;
 	}
 	return $query_res;
 }
@@ -74,7 +76,7 @@ function real_ip(){
 function gencode($mode){//mode:为false时不输出内容
 	global $errmsg;
 	if( !(isset($_REQUEST['name']) || isset($_REQUEST['email'])) ){
-		echo(json_encode($errmsg[4]));
+		if($mode)echo(json_encode($errmsg[4]));
 		return 4;
 	}
 
@@ -83,7 +85,6 @@ function gencode($mode){//mode:为false时不输出内容
 	$email = '';
 	$sql = "delete from verify_codes where timestampdiff(second,overtime,now()) > 0";
 	$query_res = query_sql($sql);//删除已经超时的code
-
 	if(!$query_res){
 		if($mode)echo(json_encode($errmsg[5]));
 		return 5;
@@ -139,11 +140,73 @@ function gencode($mode){//mode:为false时不输出内容
 function login($mode){//mode:为false时不输出内容
 	global $errmsg;
 	if(!((isset($_REQUEST['name'])||isset($_REQUEST['email']))&&isset($_REQUEST['password']))){
-		echo json_encode($errmsg[4]);
+		if($mode)echo(json_encode($errmsg[4]));
 		return;
 	}
 
-	
+	$sql = 'delete from tokens where timestampdiff(second,overtime,now()) > 0';//删除已超时的token
+	$query_res = query_sql($sql);
+	if(!$query_res){
+		if($mode)echo(json_encode($errmsg[5]));
+		return 5;
+	}
+
+	$use_name = isset($_REQUEST['name']);
+	if($use_name) $auth = $_REQUEST['name'];
+	else $auth = $_REQUEST['email'];
+	$auth = base64_encode($auth);
+	$password = base64_encode(md5($_REQUEST['password']));
+
+	if($use_name)$sql = "select id,passwd from users where verify=1 and enable=1 and name='$auth' and passwd='$password'";//从数据库中已验证、未封禁的用户中选出符合auth条件的
+	else $sql = "select id,passwd from users where verify=1 and enable=1 and email='$auth' and passwd='$password'";
+	$query_res = query_sql($sql);
+	if(!$query_res){
+		if($mode)echo(json_encode($errmsg[5]));
+		return 5;
+	}
+
+	if(!$row = mysqli_fetch_array($query_res)){//用户名或密码错误
+		if($mode)echo(json_encode($errmsg[8]));
+		return 8;
+	}
+
+	if($row['passwd'] != $password){//用户名或密码错误
+		if($mode)echo(json_encode($errmsg[8]));
+		return 8;
+	}
+
+	$id = $row['id'];
+	$ip = real_ip();
+	$sql = "select token from tokens where id=$id and ip='$ip'";
+	$query_res = query_sql($sql);
+	if(!$query_res){
+		if($mode)echo(json_encode($errmsg[5]));
+		return 5;
+	}
+
+	if($row = mysqli_fetch_array($query_res)){
+		$token = base64_decode($row['token']);
+		$sql = "delete from tokens where id=$id and ip='$ip'";
+		$query_res = query_sql($sql);
+		if(!$query_res){
+			if($mode)echo(json_encode($errmsg[5]));
+			return 5;
+		}
+	}
+	else {
+		$hashkey = $id . rand() . time();
+		$token = md5($hashkey);
+	}
+	$date = date('Y-m-d H:i:s', strtotime('+3 months'));
+	$sql = "insert into tokens (id,token,ip,overtime) values($id,'".base64_encode($token)."','$ip','$date')";
+	$query_res = query_sql($sql);
+	if(!$query_res){
+		if($mode)echo(json_encode($errmsg[5]));
+		return 5;
+	}
+
+	if($mode)echo(json_encode(array('result'=>0,'msg'=>'OK','token'=>$token)));
+	return;
 
 }
 

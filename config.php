@@ -6,7 +6,7 @@ $mysql_password = '061207';
 $mysql_database = 'login';
 
 $service_status = true;
-$debug_mode = true;
+$debug_mode = false;
 $code_overtime = '+1 hour';
 
 $errmsg=array(//错误返回信息
@@ -16,7 +16,8 @@ $errmsg=array(//错误返回信息
 	4=>array('result'=>4,'msg'=>'Missing parameter'),				//缺少参数（见上表，若传参缺失会报此错误码）
 	5=>array('result'=>5,'msg'=>'Database query Failed'),			//数据库操作失败
 	6=>array('result'=>6,'msg'=>'Unknow user/email'),				//未知用户
-	7=>array('result'=>7,'msg'=>'Unnecessary operation')			//无需执行操作
+	7=>array('result'=>7,'msg'=>'Unnecessary operation'),			//无需执行操作
+	8=>array('result'=>8,'msg'=>'Incorrect user name or password')	//用户名或密码错误
 );
 
 $smtpserver = "localhost";											//SMTP服务器

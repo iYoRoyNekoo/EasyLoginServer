@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2023-01-21 11:15:34
+-- 生成日期： 2023-01-21 16:10:55
 -- 服务器版本： 8.0.32
 -- PHP 版本： 7.4.33
 
@@ -29,7 +29,6 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `tokens` (
   `id` int UNSIGNED NOT NULL,
-  `name` varchar(64) NOT NULL,
   `token` varchar(64) NOT NULL,
   `ip` varchar(32) NOT NULL,
   `overtime` datetime NOT NULL
@@ -84,16 +83,10 @@ ALTER TABLE `users`
 --
 
 --
--- 使用表AUTO_INCREMENT `tokens`
---
-ALTER TABLE `tokens`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- 使用表AUTO_INCREMENT `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
