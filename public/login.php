@@ -83,7 +83,7 @@ function gencode($mode){//mode:为false时不输出内容
 	$use_name = isset($_REQUEST['name']);
 	$auth = '';
 	$email = '';
-	$sql = "delete from verify_codes where timestampdiff(second,overtime,now()) < 0";
+	$sql = "delete from verify_codes where overtime<now();";
 	$query_res = query_sql($sql);//删除已经超时的code
 	if(!$query_res){
 		if($mode)echo(json_encode($errmsg[5]));
@@ -117,7 +117,7 @@ function gencode($mode){//mode:为false时不输出内容
 	$code = rand(100000, 999999);
     $overtime = date('Y-m-d H:i:s', strtotime($code_overtime));
 
-	$sql = "insert into verify_codes values('$code','".base64_encode($name)."','$overtime')";
+	$sql = "insert into verify_codes (code,name,overtime) values('$code','".base64_encode($name)."','$overtime')";
 	$query_res = query_sql($sql);
 
 	if(!$query_res){
@@ -144,7 +144,7 @@ function login($mode){//mode:为false时不输出内容
 		return 4;
 	}
 
-	$sql = 'delete from tokens where timestampdiff(second,overtime,now()) < 0';//删除已超时的token
+	$sql = 'delete from tokens where overtime<now();';//删除已超时的token
 	$query_res = query_sql($sql);
 	if(!$query_res){
 		if($mode)echo(json_encode($errmsg[5]));
@@ -248,7 +248,7 @@ function register(){
 	mkdir("../data/$id");
 	gencode(false);
 
-	echo json_encode(array('result'=>0,'msg'=>'OK'));
+	echo(json_encode(array('result'=>0,'msg'=>'OK')));
 	return;
 }
 
