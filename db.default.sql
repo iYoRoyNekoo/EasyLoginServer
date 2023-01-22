@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2023-01-21 16:10:55
+-- 生成日期： 2023-01-22 05:21:22
 -- 服务器版本： 8.0.32
 -- PHP 版本： 7.4.33
 
@@ -57,6 +57,7 @@ CREATE TABLE `users` (
 --
 
 CREATE TABLE `verify_codes` (
+  `id` int UNSIGNED NOT NULL,
   `code` mediumint NOT NULL,
   `name` varchar(64) NOT NULL,
   `overtime` datetime NOT NULL
@@ -79,6 +80,12 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`id`);
 
 --
+-- 表的索引 `verify_codes`
+--
+ALTER TABLE `verify_codes`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- 在导出的表使用AUTO_INCREMENT
 --
 
@@ -86,7 +93,13 @@ ALTER TABLE `users`
 -- 使用表AUTO_INCREMENT `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- 使用表AUTO_INCREMENT `verify_codes`
+--
+ALTER TABLE `verify_codes`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
